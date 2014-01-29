@@ -71,18 +71,51 @@ Graph.prototype = {
         return this.children(node).concat(this.parents(node))
     },
 
-    connect: function (node1, node2) {
-        //console.log("connecting " + node1.value + " with " + node2.value + " (already? " + this.children(node1).filter(eq.curry(node2)).length)
-        if (this.children(node1).filter(eq.curry(node2)).length == 0)
-            this.edges.push(new Edge(node1, node2))
+    disconnect: function (node1, node2) {
+        var edge = this.outEdges(node1).filter(function (e) { return e.destination == node2 })
+        console.log("e: " + this.edges.length + " disconnecting " + node1.identifier + " from " + node2.identifier + " edges: " + edge.length)
+        if (edge.length != 1)
+            throw "Better not happen!"
+        this.edges = this.edges.filter(neq.curry(edge[0]))
+        console.log("e now " + this.edges.length)
+    },
+
+    connect: function (node1, node2, type) {
+        console.log("connecting " + node1.identifier + " with " + node2.identifier)
+        if (this.children(node1).filter(eq.curry(node2)).length == 0) {
+            var edge = new Edge(node1, node2, type)
+            this.edges.push(edge)
+            console.log("success")
+            return edge
+        }
+        console.log("were already connected")
     },
 
     insert: function (node) {
         this.nodes.push(node)
+        return node
     },
 
     contains: function (node) {
         return (this.nodes.filter(eq.curry(node)).length > 0)
+    },
+
+    findNodeByID: function (id) {
+        var nodes = this.nodes.filter(function (x) { return x.identifier == id })
+        if (nodes.length > 1)
+            throw "multiple nodes with that id exist, go away"
+        if (nodes.length == 1)
+            return nodes[0]
+        else
+            return null
+    },
+
+    insertNodeByID: function (id, val) {
+        if (this.findNodeByID(id))
+            throw "node with that id already exists, go away"
+        var n = new EllipseNode(val, id)
+        this.insert(n)
+        return n
     },
 
     findNode: function (val) {

@@ -7,6 +7,8 @@ Node.prototype = {
     edge: null,
     fillStyle: "orange",
     textStyle: "black",
+    value: "nothing",
+    identifier: 0,
 
     redraw: function (context, graph) {
         console.log("this better not happen")
@@ -55,12 +57,13 @@ Node.prototype = {
     },
 }
 
-function EllipseNode (val) {
+function EllipseNode (val, id) {
     this.value = val
     this.a = 0
     this.b = 9
     this.focalpoint1 = null
     this.focalpoint2 = null
+    this.identifier = id
 }
 EllipseNode.prototype = {
     constructor: EllipseNode,
@@ -115,11 +118,13 @@ EllipseNode.prototype = {
 
     afterplace: function (graph) {
         var size = graph.context.measureText(this.value)
-        var width = (size.width + (size.width / 10)) / 2
-        this.a = width
         var height = this.b
-        if (height > width)
+        var width = (size.width + (size.width / 10)) / 2
+        if (height > width) {
             console.log("ALL WRONG!!!!")
+            width = height + 5
+        }
+        this.a = width
         var fp = Math.sqrt(width * width - height * height)
         this.focalpoint1 = this.position.follow(new PolarPoint(0, fp))
         this.focalpoint2 = this.position.follow(new PolarPoint(Math.PI, fp))
@@ -142,9 +147,10 @@ EllipseNode.prototype = {
     }
 }
 
-function CircleNode (val) {
+function CircleNode (val, id) {
     this.value = val
     this.radius = 15
+    this.identifier = id
 }
 CircleNode.prototype = {
     constructor: CircleNode,

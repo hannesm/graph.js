@@ -29,3 +29,7 @@ function getProp (property, object) {
 function eq (a, b) {
     return a == b
 }
+
+function neq (a, b) {
+    return a != b
+}

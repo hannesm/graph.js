@@ -1,4 +1,4 @@
-function Edge (source, destination) {
+function Edge (source, destination, typ) {
     this.source = source
     this.destination = destination
     this.strokeStyle = "blue"
@@ -7,6 +7,7 @@ function Edge (source, destination) {
     this.invvec = null
     this.startpos = null
     this.endpos = null
+    this.type = typ
 }
 
 Edge.prototype = {
