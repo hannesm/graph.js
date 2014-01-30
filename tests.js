@@ -204,6 +204,36 @@ function testGraph () {
     assert("second subgraph has 3 nodes", 3, delay(graph.findsubgraphs()[1].length))
     assert("first subgraph has n1 as root", n1, delay(graph.getRoots(graph.findsubgraphs()[0])[0]))
     assert("second subgraph has two roots", 2, delay(graph.getRoots(graph.findsubgraphs()[1]).length))
+    graph.connect(n3, n1)
+    assert("first subgraph still has n1 as root", n1, delay(graph.getRoots(graph.findsubgraphs()[0])[0]))
+    graph.connect(n2, n1)
+    graph.connect(n3, n2)
+    graph.connect(n2, n3)
+    assert("first subgraph still has n1 as root", n1, delay(graph.getRoots(graph.findsubgraphs()[0])[0]))
+    assert("the first subgraph is fully connected, outedges", true,
+           delay((graph.outEdges(n1).length == 2)
+                && (graph.outEdges(n2).length == 2)
+                 && (graph.outEdges(n3).length == 2)))
+    assert("the first subgraph is fully connected, inedges", true,
+           delay((graph.inEdges(n1).length == 2)
+                && (graph.inEdges(n2).length == 2)
+                 && (graph.inEdges(n3).length == 2)))
+    assert("the first subgraph is fully connected, connectededges", true,
+           delay((graph.connectedEdges(n1).length == 4)
+                && (graph.connectedEdges(n2).length == 4)
+                 && (graph.connectedEdges(n3).length == 4)))
+    assert("the first subgraph is fully connected, neighbours", true,
+           delay((graph.neighbours(n1).length == 2)
+                && (graph.neighbours(n2).length == 2)
+                 && (graph.neighbours(n3).length == 2)))
+    assert("the first subgraph is fully connected, children", true,
+           delay((graph.children(n1).length == 2)
+                && (graph.children(n2).length == 2)
+                 && (graph.children(n3).length == 2)))
+    assert("the first subgraph is fully connected, parents", true,
+           delay((graph.parents(n1).length == 2)
+                && (graph.parents(n2).length == 2)
+                 && (graph.parents(n3).length == 2)))
 }
 
 

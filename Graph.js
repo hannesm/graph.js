@@ -73,10 +73,16 @@ Graph.prototype = {
     },
 
     neighbours: function (node) {
-        return this.children(node).concat(this.parents(node))
+        var childs = this.children(node)
+        var adults = this.parents(node)
+        for (var i = 0 ; i < childs.length ; i++)
+            if (adults.indexOf(childs[i]) == -1)
+                adults.push(childs[i])
+        return adults
     },
 
     connectedEdges: function (node) {
+        //since I do not like^Waccept self-loops, this is ok
         return this.outEdges(node).concat(this.inEdges(node))
     },
 
