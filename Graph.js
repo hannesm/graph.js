@@ -61,7 +61,8 @@ Graph.prototype = {
     },
 
     children: function (node) {
-        return this.outEdges(node).map(getProp.curry("destination"))
+        var out = this.outEdges(node)
+        return out.map(getProp.curry("destination"))
     },
 
     inEdges: function (node) {
@@ -175,11 +176,10 @@ Graph.prototype = {
     },
 
     findsubgraphs: function () {
-        //implements a breadth-first search
-        var todo = []
         var visited = []
-        var subgraph = []
-        function doVisit (graph) {
+        function doVisit (graph, r) {
+            var subgraph = []
+            var todo = [r]
             while (todo.length > 0) {
                 var node = todo.shift()
                 if (visited.filter(eq.curry(node)).length == 0) {
@@ -188,17 +188,15 @@ Graph.prototype = {
                     graph.neighbours(node).forEach(function (x) { todo.push(x) })
                 }
             }
+            return subgraph
         }
 
         var subgraphs = []
         //find remaining, disconnected nodes
         for (var i = 0; i < this.nodes.length; i++)
             if (visited.filter(eq.curry(this.nodes[i])).length == 0) {
-                //console.log("disconnected graph!")
-                subgraph = []
-                todo.push(this.nodes[i])
-                doVisit(this)
-                subgraphs.push(subgraph)
+                var sub = doVisit(this, this.nodes[i])
+                subgraphs.push(sub)
             }
         return subgraphs
     },
