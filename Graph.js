@@ -78,11 +78,10 @@ Graph.prototype = {
 
     disconnect: function (node1, node2) {
         var edge = this.outEdges(node1).filter(function (e) { return e.destination == node2 })
-        console.log("e: " + this.edges.length + " disconnecting " + node1.identifier + " from " + node2.identifier + " edges: " + edge.length)
         if (edge.length != 1)
-            throw "Better not happen!"
+            return false
         this.edges = this.edges.filter(neq.curry(edge[0]))
-        console.log("e now " + this.edges.length)
+        return true
     },
 
     connect: function (node1, node2, type) {
