@@ -59,15 +59,16 @@ Node.prototype = {
 
 function EllipseNode (val, id) {
     this.value = val
-    this.a = 0
-    this.b = 9
-    this.focalpoint1 = null
-    this.focalpoint2 = null
     this.identifier = id
 }
 EllipseNode.prototype = {
     constructor: EllipseNode,
     __proto__ : Node.prototype,
+    a: 0,
+    b: 9,
+    focalpoint1: null,
+    focalpoint2: null,
+
     redraw: function (ctx, graph) {
         var pos = this.position.toComplex()
         var widthh = this.a
@@ -153,12 +154,13 @@ EllipseNode.prototype = {
 
 function CircleNode (val, id) {
     this.value = val
-    this.radius = 15
     this.identifier = id
 }
 CircleNode.prototype = {
     constructor: CircleNode,
     __proto__ : Node.prototype,
+    radius: 15,
+
     redraw: function (ctx, graph) {
         var pos = this.position.toComplex()
         ctx.beginPath()
