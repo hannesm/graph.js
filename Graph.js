@@ -16,16 +16,18 @@ Graph.prototype = {
         this.allroots = []
     },
 
-    layout: function () {
+    layout: function (w, h) {
         //console.log("laying out " + this.nodes.length)
         this.nodes.forEach(function (x) { x.edge = null ; x.position = null })
         var subgraphs = this.findsubgraphs()
+        var width = w || this.canvas.width
+        var height = h || this.canvas.height
         for (var i = 0; i < subgraphs.length; i++) {
             var roots = this.getRoots(subgraphs[i])
             for (var r = 0; r < roots.length; r++) {
                 var root = roots[r]
-                var x = this.canvas.width / (2 * subgraphs.length) + (this.canvas.width * i / subgraphs.length)
-                var y = this.canvas.height / (2 * roots.length) + (this.canvas.height * r / roots.length)
+                var x = w / (2 * subgraphs.length) + (w * i / subgraphs.length)
+                var y = h / (2 * roots.length) + (h * r / roots.length)
                 console.log("putting root at ", x, ", ", y)
                 root.position = toPolar(x, y)
                 this.allroots.push(root)

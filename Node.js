@@ -117,9 +117,13 @@ EllipseNode.prototype = {
     },
 
     afterplace: function (graph) {
-        var size = graph.context.measureText(this.value)
+        var w = 15
+        if (graph.context)
+            w = graph.context.measureText(this.value).width
+        else
+            console.log("have no context, defaulting to width of 15")
         var height = this.b
-        var width = (size.width + (size.width / 10)) / 2
+        var width = (w + (w / 10)) / 2
         if (height > width) {
             console.log("ALL WRONG!!!!")
             width = height + 5
@@ -179,8 +183,10 @@ CircleNode.prototype = {
     },
 
     afterplace: function (graph) {
-        var size = graph.context.measureText(this.value)
-        this.radius = size.width / 3
+        var w = 15
+        if (graph.context)
+            w = graph.context.measureText(this.value).width
+        this.radius = w / 3
     },
 
 
