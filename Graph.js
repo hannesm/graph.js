@@ -1,8 +1,11 @@
-function Graph () {
+function Graph (canv) {
     this.nodes = []
     this.edges = []
     this.selectedNode = null
     this.allroots = []
+    this.context = null
+    if (canv) this.context = canv.getContext('2d')
+    this.canvas = canv
 }
 
 Graph.prototype = {
@@ -13,7 +16,7 @@ Graph.prototype = {
         this.allroots = []
     },
 
-    layout: function (canvas) {
+    layout: function () {
         //console.log("laying out " + this.nodes.length)
         this.nodes.forEach(function (x) { x.edge = null ; x.position = null })
         var subgraphs = this.findsubgraphs()
@@ -21,8 +24,8 @@ Graph.prototype = {
             var roots = this.getRoots(subgraphs[i])
             for (var r = 0; r < roots.length; r++) {
                 var root = roots[r]
-                var x = canvas.width / (2 * subgraphs.length) + (canvas.width * i / subgraphs.length)
-                var y = canvas.height / (2 * roots.length) + (canvas.height * r / roots.length)
+                var x = this.canvas.width / (2 * subgraphs.length) + (this.canvas.width * i / subgraphs.length)
+                var y = this.canvas.height / (2 * roots.length) + (this.canvas.height * r / roots.length)
                 console.log("putting root at ", x, ", ", y)
                 root.position = toPolar(x, y)
                 this.allroots.push(root)
@@ -34,10 +37,10 @@ Graph.prototype = {
         this.edges.forEach(cb.curry(this))
     },
 
-    draw: function (ctx) {
-        ctx.clearRect(0, 0, 800, 300)
+    draw: function () {
+        this.context.clearRect(0, 0, 800, 300)
         var cb = function (ctx, graph, x) { x.draw(ctx, graph) }
-        this.visit(cb.curry(ctx, this))
+        this.visit(cb.curry(this.context, this))
     },
 
     findNodeAt: function (x, y) {
@@ -155,9 +158,8 @@ Graph.prototype = {
 
     findsubgraphs: function () {
         //implements a breadth-first search
-        var todo = [this.nodes[0]]
+        var todo = []
         var visited = []
-        var subgraphs = []
         var subgraph = []
         function doVisit (graph) {
             while (todo.length > 0) {
@@ -170,9 +172,7 @@ Graph.prototype = {
             }
         }
 
-        doVisit(this)
-        subgraphs.push(subgraph)
-
+        var subgraphs = []
         //find remaining, disconnected nodes
         for (var i = 0; i < this.nodes.length; i++)
             if (visited.filter(eq.curry(this.nodes[i])).length == 0) {
