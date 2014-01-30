@@ -188,6 +188,22 @@ function testGraph () {
             assert("position is disjoint",
                    false,
                    delay(positions[i].eq(positions[j])))
+
+    graph.remove(n0)
+    assert("all edges gone", 0, delay(graph.edges.length))
+    assert("graph has 7 subgraphs", 7, delay(graph.findsubgraphs().length))
+    graph.connect(n1, n2)
+    graph.connect(n1, n3)
+    assert("graph has 5 subgraphs", 5, delay(graph.findsubgraphs().length))
+    graph.connect(n6, n5)
+    graph.connect(n4, n5)
+    graph.remove(n7)
+    assert("graph has 2 subgraphs", 2, delay(graph.findsubgraphs().length))
+    assert("graph has 4 edges", 4, delay(graph.edges.length))
+    assert("first subgraph has 3 nodes", 3, delay(graph.findsubgraphs()[0].length))
+    assert("second subgraph has 3 nodes", 3, delay(graph.findsubgraphs()[1].length))
+    assert("first subgraph has n1 as root", n1, delay(graph.getRoots(graph.findsubgraphs()[0])[0]))
+    assert("second subgraph has two roots", 2, delay(graph.getRoots(graph.findsubgraphs()[1]).length))
 }
 
 
