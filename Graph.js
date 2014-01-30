@@ -26,8 +26,8 @@ Graph.prototype = {
             var roots = this.getRoots(subgraphs[i])
             for (var r = 0; r < roots.length; r++) {
                 var root = roots[r]
-                var x = w / (2 * subgraphs.length) + (w * i / subgraphs.length)
-                var y = h / (2 * roots.length) + (h * r / roots.length)
+                var x = width / (2 * subgraphs.length) + (width * i / subgraphs.length)
+                var y = height / (2 * roots.length) + (height * r / roots.length)
                 console.log("putting root at ", x, ", ", y)
                 root.position = toPolar(x, y)
                 this.allroots.push(root)
