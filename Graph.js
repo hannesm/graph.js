@@ -86,14 +86,14 @@ Graph.prototype = {
     },
 
     connect: function (node1, node2, type) {
-        console.log("connecting " + node1.identifier + " with " + node2.identifier)
-        if (this.children(node1).filter(eq.curry(node2)).length == 0) {
-            var edge = new Edge(node1, node2, type)
-            this.edges.push(edge)
-            console.log("success")
-            return edge
+        if (node1 != node2) {
+            if (this.children(node1).filter(eq.curry(node2)).length == 0) {
+                var edge = new Edge(node1, node2, type)
+                this.edges.push(edge)
+                return edge
+            } else
+                console.log("were already connected")
         }
-        console.log("were already connected")
     },
 
     insert: function (node) {
