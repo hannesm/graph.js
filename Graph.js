@@ -76,6 +76,10 @@ Graph.prototype = {
         return this.children(node).concat(this.parents(node))
     },
 
+    connectedEdges: function (node) {
+        return this.outEdges(node).concat(this.inEdges(node))
+    },
+
     disconnect: function (node1, node2) {
         var edge = this.outEdges(node1).filter(function (e) { return e.destination == node2 })
         if (edge.length != 1)
@@ -93,6 +97,13 @@ Graph.prototype = {
             } else
                 console.log("were already connected")
         }
+    },
+
+    remove: function (node) {
+        var edg = this.connectedEdges(node)
+        for (var i = 0 ; i < edg.length ; i++)
+            this.edges = this.edges.filter(neq.curry(edg[i]))
+        this.nodes = this.nodes.filter(neq.curry(node))
     },
 
     insert: function (node) {

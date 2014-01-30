@@ -8,6 +8,12 @@ function toPolar (x, y) {
     return pp
 }
 
+var epsilon = 0.00001
+
+function floateq (x, y) {
+    return Math.abs(x - y) < epsilon
+}
+
 PolarPoint.prototype = {
     setComplex: function (x, y) {
         this.rho = Math.sqrt(x * x + y * y)
@@ -20,6 +26,10 @@ PolarPoint.prototype = {
         var x = Math.cos(this.theta) * this.rho
         var y = Math.sin(this.theta) * this.rho
         return [x, y]
+    },
+
+    eq: function (other) {
+        return (floateq(this.rho, other.rho) && floateq(this.theta, other.theta))
     },
 
     add: function (polar) {

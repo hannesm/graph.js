@@ -47,17 +47,9 @@ function testUtils () {
     assert("neq is not eq", true, neq.curry(neq), [eq])
 }
 
-testUtils()
-
-var epsilon = 0.001
-
-function samesame (x, y) {
-    return Math.abs(x - y) < epsilon
-}
-
 function testCoordinates (name, should, are) {
-    assert(name + " x", true, samesame.curry(should[0]), [are[0]])
-    assert(name + " y", true, samesame.curry(should[1]), [are[1]])
+    assert(name + " x", true, floateq.curry(should[0]), [are[0]])
+    assert(name + " y", true, floateq.curry(should[1]), [are[1]])
 }
 
 function testPolar () {
@@ -69,23 +61,23 @@ function testPolar () {
     var fourfour = oneone.scale(4)
     testCoordinates("polarpoint scale worked", [4, 4], fourfour.toComplex())
     var copy = fourfour.copy()
+    assert("copy has the same value", true, delay(copy.eq(fourfour)))
+    assert("copy is different from oneone", false, delay(copy.eq(oneone)))
     fourfour.rho = 0
+    assert("copy has no longer the same value", false, delay(copy.eq(fourfour)))
     testCoordinates("polarpoint copy worked", [4, 4], copy.toComplex())
     testCoordinates("polarpoint copy worked", [0, 0], fourfour.toComplex())
     var cc = pp.follow(toPolar(10, 10)).follow(toPolar(10, 0))
     testCoordinates("polarpoint multiple follow worked", [20, 10], cc.toComplex())
     var dist = oneone.distance(copy)
-    assert("distance is correct", true, samesame.curry(Math.sqrt(3 * 3 + 3 * 3)), [dist])
+    assert("distance is correct", true, floateq.curry(Math.sqrt(3 * 3 + 3 * 3)), [dist])
     var dist2 = copy.distance(oneone)
-    assert("distance is correct", true, samesame.curry(Math.sqrt(3 * 3 + 3 * 3)), [dist2])
+    assert("distance is correct", true, floateq.curry(Math.sqrt(3 * 3 + 3 * 3)), [dist2])
     var dist3 = cc.distance(pp)
-    assert("distance is correct", true, samesame.curry(Math.sqrt(20 * 20 + 10 * 10)), [dist3])
+    assert("distance is correct", true, floateq.curry(Math.sqrt(20 * 20 + 10 * 10)), [dist3])
 }
 
-testPolar()
-
-
-function testGraph () {
+function testGraphBasic () {
     var graph = new Graph()
     var n10 = new Node(10)
     graph.insert(n10)
@@ -151,8 +143,57 @@ function testGraph () {
     assert("disconnect a second time fails", false, delay(graph.disconnect(n10, n20)))
     assert("disconnect another edge fails", false, delay(graph.disconnect(n20, n10)))
 
+
+    graph.remove(n10)
+    assert("remove removes the node", 1, delay(graph.nodes.length))
+    assert("remove removes the correct node", n20, delay(graph.nodes[0]))
+
+    graph.insert(n10)
+    assert("graph insert works", 2, delay(graph.nodes.length))
+    assert("connection worked", true, delay(graph.connect(n10, n20) != null))
+    assert("one edge in graph", 1, delay(graph.edges.length))
+
+    graph.remove(n10)
+    assert("remove removes the node", 1, delay(graph.nodes.length))
+    assert("remove removes the correct node", n20, delay(graph.nodes[0]))
+    assert("remove removed the edge", 0, delay(graph.edges.length))
 }
 
+function testGraph () {
+    var graph = new Graph()
+    var n0 = graph.insertNodeByID(0, "0")
+    var n1 = graph.insertNodeByID(1, "0")
+    var n2 = graph.insertNodeByID(2, "0")
+    var n3 = graph.insertNodeByID(3, "0")
+    var n4 = graph.insertNodeByID(4, "0")
+    var n5 = graph.insertNodeByID(5, "0")
+    var n6 = graph.insertNodeByID(6, "0")
+    var n7 = graph.insertNodeByID(7, "0")
+    graph.connect(n0, n1)
+    graph.connect(n0, n2)
+    graph.connect(n0, n3)
+    graph.connect(n0, n4)
+    graph.connect(n0, n5)
+    graph.connect(n0, n6)
+    graph.connect(n0, n7)
+    assert("graph has a single subgraph", 1, delay(graph.findsubgraphs().length))
+    graph.disconnect(n0, n2)
+    assert("graph has a two subgraph", 2, delay(graph.findsubgraphs().length))
+    assert("n0 has 6 childs", 6, delay(graph.children(n0).length))
+
+    graph.layout(100, 100)
+    var positions = graph.nodes.map(function (x) { return x.position })
+    for (var i = 0 ; i < positions.length ; i++)
+        for (var j = i + 1 ; j < positions.length ; j++)
+            assert("position is disjoint",
+                   false,
+                   delay(positions[i].eq(positions[j])))
+}
+
+
+testUtils()
+testPolar()
+testGraphBasic()
 testGraph()
 
 console.log("In", count, "assertions I failed to find any defects")
