@@ -133,3 +133,60 @@ CircularLayouter.prototype = {
     }
 }
 
+function HierarchicLayouter (width, height) {
+    this.width = width
+    this.height = height
+}
+HierarchicLayouter.prototype = {
+    constructor: CircularLayouter,
+    __proto__: Layouter.prototype,
+
+    resetEdge: function (edge) {
+        edge.startposition = null
+        edge.endposition = null
+    },
+    resetNode: function (node) {
+        node.position = null
+        node.edge = null
+    },
+
+    layoutGraph: function (graph) {
+        var subs = graph.getSubgraphs()
+        for (var i = 0; i < subs.length; i++) {
+            var roots = graph.getRoots(subs[i])
+            for (var r = 0; r < roots.length; r++) {
+                var root = roots[r]
+                var x = this.width / (2 * subs.length) + (this.width * i / subs.length)
+                var y = 10 + this.height * r / roots.length
+                console.log("putting root " + root + " at ", x, ", ", y)
+                root.position = toPolar(x, y)
+            }
+        }
+
+        var cb = function (graph, layouter, x) { layouter.layoutNode(graph, x) }
+        graph.visit(cb.curry(graph, this), 'down')
+
+        var cbe = function (graph, layouter, x) { layouter.layoutEdge(graph, x) }
+        graph.edges.forEach(cbe.curry(graph, this))
+    },
+
+    layoutNode: function (graph, node) {
+        //we go level by level
+        //and better have a position!
+        var childs = graph.children(node)
+        var fst = Math.PI / (childs.length + 1)
+        for (var i = 0; i < childs.length; i++) {
+            if (childs[i].position == null) {
+                //vary between 0 and pi
+                var vec = new PolarPoint(fst + i * (Math.PI / (childs.length + 1)), 30)
+                childs[i].position = node.position.follow(vec)
+            }
+        }
+        //adjust node data such as radius and size
+        node.adjustposition(graph)
+    },
+
+    layoutEdge: function (graph, edge) {
+        edge.adjustposition(graph)
+    }
+}

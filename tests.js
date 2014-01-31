@@ -246,5 +246,6 @@ testPolar()
 testGraphBasic()
 testGraph(new RandomLayouter(100, 100))
 testGraph(new CircularLayouter(100, 100))
+testGraph(new HierarchicLayouter(100, 1000))
 
 console.log("In", count, "assertions I failed to find any defects")
