@@ -14,6 +14,12 @@ function Graph (canvas, width, height) {
     this.layouter = new CircularLayouter(width || w, height || h)
 }
 Graph.prototype = {
+    clear: function () {
+        this.nodes = []
+        this.edges = []
+        this.selectedNode = null
+    },
+
     layout: function (w, h) {
         if (this.nodes.length > 0) {
             this.layouter.resetLayout(this)
