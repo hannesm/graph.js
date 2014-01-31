@@ -3,24 +3,27 @@ function Layouter () {
 Layouter.prototype = {
     width: 0,
     height: 0,
-    direction: null, //passed to visit in graph
-
 
     resetLayout: function (graph) {
-        var cl = function (layouter, node) { node.edge = null ; node.initialposition = null }
+        var cl = function (layouter, node) { layouter.resetNode(node) }
         graph.nodes.forEach(cl.curry(this))
 
-        var cl2 = function (layouter, edge) { edge.startposition = null; edge.endposition = null }
+        var cl2 = function (layouter, edge) { layouter.resetEdge(edge) }
         graph.edges.forEach(cl2.curry(this))
     },
 
-    //divides the space into regions for the graphs
-    layoutGraph: function (graph) {
-        var cb = function (graph, layouter, x) { layouter.layoutNode(graph, x) }
-        graph.visit(cb.curry(graph, this), this.direction)
+    resetNode: function (node) {
+        throw "better be implemented"
+    },
 
-        var cbe = function (graph, layouter, x) { layouter.layoutEdge(graph, x) }
-        graph.edges.forEach(cb.curry(graph, this))
+    resetEdge: function (edge) {
+        throw "better be implemented"
+    },
+
+    //divides the space into regions for the graphs
+    //should as a side effect set position of all nodes
+    layoutGraph: function (graph) {
+        throw "better be implemented"
     },
 
     //what strategy to apply for each node
@@ -41,29 +44,45 @@ RandomLayouter.prototype = {
     constructor: RandomLayouter,
     __proto__: Layouter.prototype,
 
+    resetEdge: function (edge) { },
+    resetNode: function (node) { node.position = null },
+
+    layoutGraph: function (graph) {
+        var cb = function (graph, layouter, x) { layouter.layoutNode(graph, x) }
+        graph.nodes.forEach(cb.curry(graph, this))
+
+        var cbe = function (graph, layouter, x) { layouter.layoutEdge(graph, x) }
+        graph.edges.forEach(cbe.curry(graph, this))
+    },
+
     layoutNode: function (graph, node) {
-        if (! node.initialposition) {
+        if (! node.position) {
             var x = Math.random() * this.width
             var y = Math.random() * this.height
-            node.initialposition = toPolar(x, y)
+            node.position = toPolar(x, y)
         }
     },
 
     layoutEdge: function (graph, edge) {
-        edge.startpos = edge.source.initialposition
-        edge.endpos = edge.destination.initialposition
     }
-
 }
 
 function CircularLayouter (width, height) {
     this.width = width
     this.height = height
-    this.direction = 'down'
 }
 CircularLayouter.prototype = {
     constructor: CircularLayouter,
     __proto__: Layouter.prototype,
+
+    resetEdge: function (edge) {
+        edge.startposition = null
+        edge.endposition = null
+    },
+    resetNode: function (node) {
+        node.position = null
+        node.edge = null
+    },
 
     layoutgraph: function (graph) {
         var subs = graph.getSubgraphs()
@@ -77,8 +96,40 @@ CircularLayouter.prototype = {
                 root.position = toPolar(x, y)
             }
         }
+        var cb = function (graph, layouter, x) { layouter.layoutNode(graph, x) }
+        graph.visit(cb.curry(graph, this), 'down')
+
+        var cbe = function (graph, layouter, x) { layouter.layoutEdge(graph, x) }
+        graph.edges.forEach(cbe.curry(graph, this))
     },
 
-    
+    layoutNode: function (graph, node) {
+        var childs = graph.children(node)
+        for (var i = 0; i < childs.length; i++) {
+            //that's all not good here yet...
+            if (childs[i].position == null) {
+                var fact = childs.length
+                if (fact % 2 == 0)
+                    fact++
+
+                var stat = 0
+                var variance = Math.PI * 2
+                if (node.edge) {
+                    variance = Math.PI
+                    stat = node.edge.theta - (Math.PI / 2)
+                }
+
+                var vec = new PolarPoint(stat + (i + 1) * (variance / fact), 90)
+                //console.log("setting position of " + childs[i].value + " to ", vec.toComplex())
+                childs[i].position = node.position.follow(vec)
+            }
+        }
+        //adjust node data such as radius and size
+        node.adjustposition(graph)
+    },
+
+    layoutEdge: function (graph, edge) {
+        edge.adjustposition(graph)
+    }
 }
 

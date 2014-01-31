@@ -2,13 +2,12 @@ function Node () {
 }
 Node.prototype = {
     constructor: Node,
-    edge: null,
     fillStyle: "orange",
     textStyle: "black",
     value: "nothing",
     identifier: 0,
     position: null,
-    initialposition: null,
+    position: null,
 
     redraw: function (context, graph) {
         console.log("this better not happen")
@@ -24,31 +23,7 @@ Node.prototype = {
         console.log("better not happen")
     },
 
-    afterplace: function (graph) { },
-
-    place: function (graph) {
-        var childs = graph.children(this)
-        for (var i = 0; i < childs.length; i++) {
-            //that's all not good here yet...
-            if (childs[i].position == null) {
-                var fact = childs.length
-                if (fact % 2 == 0)
-                    fact++
-
-                var stat = 0
-                var variance = Math.PI * 2
-                if (this.edge) {
-                    variance = Math.PI
-                    stat = this.edge.theta - (Math.PI / 2)
-                }
-
-                var vec = new PolarPoint(stat + (i + 1) * (variance / fact), 90)
-                //console.log("setting position of " + childs[i].value + " to ", vec.toComplex())
-                childs[i].position = this.position.follow(vec)
-            }
-        }
-        this.afterplace(graph)
-    },
+    adjustposition: function (graph) { },
 
     draw: function (ctx, graph) {
         //we better have a position
@@ -117,7 +92,7 @@ EllipseNode.prototype = {
 
     },
 
-    afterplace: function (graph) {
+    adjustposition: function (graph) {
         var w = 15
         if (graph.context)
             w = graph.context.measureText(this.value).width
@@ -184,7 +159,7 @@ CircleNode.prototype = {
         ctx.fillText(this.value, pos[0] - (size.width / 2), pos[1])
     },
 
-    afterplace: function (graph) {
+    adjustposition: function (graph) {
         var w = 15
         if (graph.context)
             w = graph.context.measureText(this.value).width

@@ -183,12 +183,14 @@ function testGraph () {
     assert("n0 has 6 childs", 6, delay(graph.children(n0).length))
 
     graph.layout()
-    var positions = graph.nodes.map(function (x) { return x.initialposition })
-    for (var i = 0 ; i < positions.length ; i++)
+    var positions = graph.nodes.map(function (x) { return x.position })
+    for (var i = 0 ; i < positions.length ; i++) {
+        assert("position is set", true, delay(positions[i] != null))
         for (var j = i + 1 ; j < positions.length ; j++)
             assert("position is disjoint",
                    false,
                    delay(positions[i].eq(positions[j])))
+    }
 
     graph.remove(n0)
     assert("all edges gone", 0, delay(graph.edges.length))

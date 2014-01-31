@@ -14,17 +14,21 @@ Documentation
 =============
 
 A graph consists of an array of nodes and an array of edges. Currently
-there are only directed graphs supported.
+only directed graphs are supported.
+
+A Graph constructor should receive a ``canvas``, or (mainly for
+testing) a ``width`` and ``height`` argument.
+
+``Graph (<canvas>, <width>, <height>)``
 
 Utility function such as ``insert`` and ``connect`` are provided in
-the Graph.prototype. A Graph constructor should receive a ``canvas``.
+the Graph.prototype.
 
 Layouting a graph (``layout``) consists of placing all the nodes,
 placing all the edges, and then drawing the objects.
 
-To visit all nodes, first the independent subgraphs are computed
-(``Graph.findsubgraphs``). This does a breadth-first search on each
-subgraph.
+To visit all nodes, the independent subgraphs are computed
+(``Graph.getSubgraphs()``) and cached.
 
 Afterwards, all ``roots`` (where the number of in-edges is zero) are
 placed on the available context (widht/height is taken from the
