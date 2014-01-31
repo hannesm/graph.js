@@ -84,10 +84,10 @@ CircularLayouter.prototype = {
         node.edge = null
     },
 
-    layoutgraph: function (graph) {
+    layoutGraph: function (graph) {
         var subs = graph.getSubgraphs()
         for (var i = 0; i < subs.length; i++) {
-            var roots = this.getRoots(sus[i])
+            var roots = graph.getRoots(subs[i])
             for (var r = 0; r < roots.length; r++) {
                 var root = roots[r]
                 var x = this.width / (2 * subs.length) + (this.width * i / subs.length)

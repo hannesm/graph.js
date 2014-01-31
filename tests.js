@@ -160,8 +160,9 @@ function testGraphBasic () {
     assert("remove removed the edge", 0, delay(graph.edges.length))
 }
 
-function testGraph () {
+function testGraph (layouter) {
     var graph = new Graph(null, 100, 100)
+    graph.layouter = layouter
     var n0 = graph.insertNodeByID(0, "0")
     var n1 = graph.insertNodeByID(1, "0")
     var n2 = graph.insertNodeByID(2, "0")
@@ -243,6 +244,7 @@ function testGraph () {
 testUtils()
 testPolar()
 testGraphBasic()
-testGraph()
+testGraph(new RandomLayouter(100, 100))
+testGraph(new CircularLayouter(100, 100))
 
 console.log("In", count, "assertions I failed to find any defects")

@@ -11,7 +11,7 @@ function Graph (canvas, width, height) {
         w = canas.width
         h = canas.height
     }
-    this.layouter = new RandomLayouter(width || w, height || h)
+    this.layouter = new CircularLayouter(width || w, height || h)
 }
 Graph.prototype = {
     layout: function (w, h) {
