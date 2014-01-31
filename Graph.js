@@ -81,13 +81,13 @@ Graph.prototype = {
             }
     },
 
-    connect: function (node1, node2, edgetype) {
+    connect: function (node1, node2) {
         if (node1)
             if (node2)
                 if (node1 != node2) {
                     if (this.children(node1).filter(eq.curry(node2)).length == 0) {
                         this.subgraphs = []
-                        var edge = new Edge(node1, node2, edgetype)
+                        var edge = new Edge(node1, node2)
                         this.edges.push(edge)
                         return edge
                     } else
