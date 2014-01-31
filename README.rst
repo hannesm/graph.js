@@ -50,15 +50,6 @@ on all nodes and edges.
 Selection of the node at the current mouse pointer position (for
 ``onclick``) is available via the ``Graph.findNodeAt(x, y)`` function.
 
-````
-canvas.onclick = function (event) {
-    var x = event.pageX - canvas.offsetLeft
-    var y = event.pageY - canvas.offsetTop
-    var node = graph.findNodeAt(x, y)
-    graph.setselected(node)
-}
-````
-
 The ``setselected`` method sets the ``isselected`` property of the
 selected node, and the ``selectedNode`` property of the
 graph. Afterwards it calls ``redraw`` on both nodes, which implements
