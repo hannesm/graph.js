@@ -1,4 +1,5 @@
 function Graph (canvas, width, height) {
+    this.modified = false
     this.nodes = []
     this.edges = []
     this.selectedNode = null
@@ -14,6 +15,17 @@ function Graph (canvas, width, height) {
     this.layouter = new CircularLayouter(width || w, height || h)
 }
 Graph.prototype = {
+    copy: function () {
+        if (this.modified) {
+            var g = new Graph(this.canvas)
+            g.nodes = this.nodes.slice(0)
+            g.edges = this.edges.slice(0)
+            g.layouter = this.layouter
+            return g
+        } else
+            return this
+    },
+
     clear: function () {
         this.nodes = []
         this.edges = []
@@ -81,6 +93,7 @@ Graph.prototype = {
                 var edge = this.outEdges(node1).filter(function (e) { return e.destination == node2 })
                 if (edge.length != 1)
                     return false
+                this.modified = true
                 this.subgraphs = []
                 this.edges = this.edges.filter(neq.curry(edge[0]))
                 return true
@@ -92,6 +105,7 @@ Graph.prototype = {
             if (node2)
                 if (node1 != node2) {
                     if (this.children(node1).filter(eq.curry(node2)).length == 0) {
+                        this.modified = true
                         this.subgraphs = []
                         var edge = new Edge(node1, node2)
                         this.edges.push(edge)
@@ -104,6 +118,7 @@ Graph.prototype = {
     remove: function (node) {
         if (node) {
             //invalidate subgraphs
+            this.modified = true
             this.subgraphs = []
             var edg = this.connectedEdges(node)
             for (var i = 0 ; i < edg.length ; i++)
@@ -115,6 +130,7 @@ Graph.prototype = {
     insert: function (node) {
         if (node) {
             //invalidate subgraphs!
+            this.modified = true
             this.subgraphs = []
             this.nodes.push(node)
             return node
