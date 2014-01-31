@@ -50,7 +50,7 @@ Edge.prototype = {
             end = this.endposition
 
         var startcc = start.toComplex()
-        var endcc = end.toComplext()
+        var endcc = end.toComplex()
         ctx.strokeStyle = this.strokeStyle
         ctx.moveTo(startcc[0], startcc[1])
         ctx.lineTo(endcc[0], endcc[1])

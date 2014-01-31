@@ -92,7 +92,7 @@ CircularLayouter.prototype = {
                 var root = roots[r]
                 var x = this.width / (2 * subs.length) + (this.width * i / subs.length)
                 var y = this.height / (2 * roots.length) + (this.height * r / roots.length)
-                console.log("putting root at ", x, ", ", y)
+                console.log("putting root " + root + " at ", x, ", ", y)
                 root.position = toPolar(x, y)
             }
         }

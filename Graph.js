@@ -8,8 +8,8 @@ function Graph (canvas, width, height) {
     if (canvas) {
         this.canvas = canvas
         this.context = canvas.getContext('2d')
-        w = canas.width
-        h = canas.height
+        w = canvas.width
+        h = canvas.height
     }
     this.layouter = new CircularLayouter(width || w, height || h)
 }
@@ -70,40 +70,49 @@ Graph.prototype = {
     },
 
     disconnect: function (node1, node2) {
-        var edge = this.outEdges(node1).filter(function (e) { return e.destination == node2 })
-        if (edge.length != 1)
-            return false
-        this.subgraphs = []
-        this.edges = this.edges.filter(neq.curry(edge[0]))
-        return true
+        if (node1)
+            if (node2) {
+                var edge = this.outEdges(node1).filter(function (e) { return e.destination == node2 })
+                if (edge.length != 1)
+                    return false
+                this.subgraphs = []
+                this.edges = this.edges.filter(neq.curry(edge[0]))
+                return true
+            }
     },
 
-    connect: function (node1, node2, type) {
-        if (node1 != node2) {
-            if (this.children(node1).filter(eq.curry(node2)).length == 0) {
-                this.subgraphs = []
-                var edge = new Edge(node1, node2, type)
-                this.edges.push(edge)
-                return edge
-            } else
-                console.log("were already connected")
-        }
+    connect: function (node1, node2, edgetype) {
+        if (node1)
+            if (node2)
+                if (node1 != node2) {
+                    if (this.children(node1).filter(eq.curry(node2)).length == 0) {
+                        this.subgraphs = []
+                        var edge = new Edge(node1, node2, edgetype)
+                        this.edges.push(edge)
+                        return edge
+                    } else
+                        console.log("were already connected")
+                }
     },
 
     remove: function (node) {
-        //invalidate subgraphs
-        this.subgraphs = []
-        var edg = this.connectedEdges(node)
-        for (var i = 0 ; i < edg.length ; i++)
-            this.edges = this.edges.filter(neq.curry(edg[i]))
-        this.nodes = this.nodes.filter(neq.curry(node))
+        if (node) {
+            //invalidate subgraphs
+            this.subgraphs = []
+            var edg = this.connectedEdges(node)
+            for (var i = 0 ; i < edg.length ; i++)
+                this.edges = this.edges.filter(neq.curry(edg[i]))
+            this.nodes = this.nodes.filter(neq.curry(node))
+        }
     },
 
     insert: function (node) {
-        //invalidate subgraphs!
-        this.subgraphs = []
-        this.nodes.push(node)
-        return node
+        if (node) {
+            //invalidate subgraphs!
+            this.subgraphs = []
+            this.nodes.push(node)
+            return node
+        }
     },
 
     contains: function (node) {
