@@ -1,42 +1,24 @@
-function Graph (canv) {
+function Graph (canvas, width, height) {
     this.nodes = []
     this.edges = []
     this.selectedNode = null
-    this.allroots = []
     this.context = null
-    if (canv) this.context = canv.getContext('2d')
-    this.canvas = canv
+    var w = 0
+    var h = 0
+    if (canvas) {
+        this.canvas = canvas
+        this.context = canvas.getContext('2d')
+        w = canas.width
+        h = canas.height
+    }
+    this.layouter = new RandomLayouter(width || w, height || h)
 }
-
 Graph.prototype = {
-    clear: function () {
-        this.nodes = []
-        this.edges = []
-        this.selectNode = null
-        this.allroots = []
-    },
-
     layout: function (w, h) {
-        //console.log("laying out " + this.nodes.length)
-        this.nodes.forEach(function (x) { x.edge = null ; x.position = null })
-        var subgraphs = this.findsubgraphs()
-        var width = w || this.canvas.width
-        var height = h || this.canvas.height
-        for (var i = 0; i < subgraphs.length; i++) {
-            var roots = this.getRoots(subgraphs[i])
-            for (var r = 0; r < roots.length; r++) {
-                var root = roots[r]
-                var x = width / (2 * subgraphs.length) + (width * i / subgraphs.length)
-                var y = height / (2 * roots.length) + (height * r / roots.length)
-                console.log("putting root at ", x, ", ", y)
-                root.position = toPolar(x, y)
-                this.allroots.push(root)
-            }
+        if (this.nodes.length > 0) {
+            this.layouter.resetLayout(this)
+            this.layouter.layoutGraph(this)
         }
-        //console.log("set " + this.allroots.length + "positions")
-        var cb = function (graph, x) { x.place(graph) }
-        this.visit(cb.curry(this), 'down')
-        this.edges.forEach(cb.curry(this))
     },
 
     draw: function () {
@@ -91,6 +73,7 @@ Graph.prototype = {
         var edge = this.outEdges(node1).filter(function (e) { return e.destination == node2 })
         if (edge.length != 1)
             return false
+        this.subgraphs = []
         this.edges = this.edges.filter(neq.curry(edge[0]))
         return true
     },
@@ -98,6 +81,7 @@ Graph.prototype = {
     connect: function (node1, node2, type) {
         if (node1 != node2) {
             if (this.children(node1).filter(eq.curry(node2)).length == 0) {
+                this.subgraphs = []
                 var edge = new Edge(node1, node2, type)
                 this.edges.push(edge)
                 return edge
@@ -107,6 +91,8 @@ Graph.prototype = {
     },
 
     remove: function (node) {
+        //invalidate subgraphs
+        this.subgraphs = []
         var edg = this.connectedEdges(node)
         for (var i = 0 ; i < edg.length ; i++)
             this.edges = this.edges.filter(neq.curry(edg[i]))
@@ -114,6 +100,8 @@ Graph.prototype = {
     },
 
     insert: function (node) {
+        //invalidate subgraphs!
+        this.subgraphs = []
         this.nodes.push(node)
         return node
     },
@@ -175,30 +163,32 @@ Graph.prototype = {
         }
     },
 
-    findsubgraphs: function () {
-        var visited = []
-        function doVisit (graph, r) {
-            var subgraph = []
-            var todo = [r]
-            while (todo.length > 0) {
-                var node = todo.shift()
-                if (visited.filter(eq.curry(node)).length == 0) {
-                    subgraph.push(node)
-                    visited.push(node)
-                    graph.neighbours(node).forEach(function (x) { todo.push(x) })
+    subgraphs: [],
+    getSubgraphs: function () {
+        if (this.nodes.length > 0 && this.subgraphs.length == 0) {
+            var visited = []
+            function doVisit (graph, r) {
+                var subgraph = []
+                var todo = [r]
+                while (todo.length > 0) {
+                    var node = todo.shift()
+                    if (visited.filter(eq.curry(node)).length == 0) {
+                        subgraph.push(node)
+                        visited.push(node)
+                        graph.neighbours(node).forEach(function (x) { todo.push(x) })
+                    }
                 }
+                return subgraph
             }
-            return subgraph
-        }
 
-        var subgraphs = []
-        //find remaining, disconnected nodes
-        for (var i = 0; i < this.nodes.length; i++)
-            if (visited.filter(eq.curry(this.nodes[i])).length == 0) {
-                var sub = doVisit(this, this.nodes[i])
-                subgraphs.push(sub)
-            }
-        return subgraphs
+            //find remaining, disconnected nodes
+            for (var i = 0; i < this.nodes.length; i++)
+                if (visited.filter(eq.curry(this.nodes[i])).length == 0) {
+                    var sub = doVisit(this, this.nodes[i])
+                    this.subgraphs.push(sub)
+                }
+        }
+        return this.subgraphs
     },
 
     getRoots: function (nodelist) {
@@ -216,7 +206,8 @@ Graph.prototype = {
     visit: function (callback, direction) {
         //implements a breadth-first search
         var todo = []
-        this.allroots.forEach(function (r) { todo.push(r) })
+        var cb = function (graph, subg) { graph.getRoots(subg).forEach(function (r) { todo.push(r) }) }
+        this.getSubgraphs().forEach(cb.curry(this))
         var visited = []
         function doVisit (graph) {
             while (todo.length > 0) {

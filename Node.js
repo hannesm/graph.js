@@ -1,14 +1,14 @@
 function Node () {
 }
-
 Node.prototype = {
     constructor: Node,
-    position: null,
     edge: null,
     fillStyle: "orange",
     textStyle: "black",
     value: "nothing",
     identifier: 0,
+    position: null,
+    initialposition: null,
 
     redraw: function (context, graph) {
         console.log("this better not happen")
@@ -158,7 +158,7 @@ function CircleNode (val, id) {
 }
 CircleNode.prototype = {
     constructor: CircleNode,
-    __proto__ : Node.prototype,
+    __proto__: Node.prototype,
     radius: 15,
 
     redraw: function (ctx, graph) {
