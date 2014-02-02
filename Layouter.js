@@ -157,7 +157,12 @@ HierarchicLayouter.prototype = {
         this.subgraphs = rsub
         for (var i = 0; i < rsub.length; i++) {
             var cfg = rsub[i].filter(function (x) { return x.fillStyle == "orange" })
+            var binds = cfg.filter(function (x) { return x.value == "bind" })
             var root = cfg[0]
+            if (binds.length > 0)
+                root = binds[0]
+            if (binds.length > 1)
+                console.log("multiple binds!!")
             if (! cfg.slice(1).every(function (x) { return graph.connected(root, x) } ))
                 console.log("disconnected cfg!!!!")
             var x = this.width / (2 * rsub.length) + (this.width * i / rsub.length)

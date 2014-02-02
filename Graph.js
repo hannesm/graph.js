@@ -90,7 +90,7 @@ Graph.prototype = {
         //check whether there is any path from node1 to node2
         var isit = false
         var cb = function (node) { isit = (isit || node == node2) }
-        this.breadthfirst(cb, node1, direction)
+        this.breadthfirst(cb, [node1], direction)
         return isit
     },
 
@@ -272,22 +272,18 @@ Graph.prototype = {
         //implements a breadth-first search
         var todo = start
         var visited = []
-        function doVisit (graph) {
-            while (todo.length > 0) {
-                var node = todo.shift()
-                if (visited.filter(eq.curry(node)).length == 0) {
-                    callback(node)
-                    visited.push(node)
-                    if (direction && direction == 'up')
-                        graph.parents(node).forEach(function (x) { todo.push(x) })
-                    if (direction && direction == 'down')
-                        graph.children(node).forEach(function (x) { todo.push(x) })
-                    if (direction == null)
-                        graph.neighbours(node).forEach(function (x) { todo.push(x) })
-                }
+        while (todo.length > 0) {
+            var node = todo.shift()
+            if (visited.filter(eq.curry(node)).length == 0) {
+                callback(node)
+                visited.push(node)
+                if (direction && direction == 'up')
+                    this.parents(node).forEach(function (x) { todo.push(x) })
+                if (direction && direction == 'down')
+                    this.children(node).forEach(function (x) { todo.push(x) })
+                if (direction == null)
+                    this.neighbours(node).forEach(function (x) { todo.push(x) })
             }
         }
-
-        doVisit(this)
     },
 }
