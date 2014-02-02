@@ -26,9 +26,11 @@ Node.prototype = {
     adjustposition: function (graph) { },
 
     draw: function (ctx, graph) {
-        //we better have a position
-        this.redraw(ctx, graph)
-        graph.outEdges(this).forEach(function (x) { x.draw(ctx, graph) })
+        if (this.position) {
+            //we better have a position
+            this.redraw(ctx, graph)
+            graph.outEdges(this).forEach(function (x) { x.draw(ctx, graph) })
+        }
     },
 }
 

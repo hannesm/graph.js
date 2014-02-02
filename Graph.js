@@ -86,6 +86,14 @@ Graph.prototype = {
         return adults
     },
 
+    connected: function (node1, node2, direction) {
+        //check whether there is any path from node1 to node2
+        var isit = false
+        var cb = function (node) { isit = (isit || node == node2) }
+        this.breadthfirst(cb, node1, direction)
+        return isit
+    },
+
     connectedEdges: function (node) {
         //since I do not like^Waccept self-loops, this is ok
         return this.outEdges(node).concat(this.inEdges(node))
@@ -252,10 +260,17 @@ Graph.prototype = {
     },
 
     visit: function (callback, direction) {
-        //implements a breadth-first search
-        var todo = []
-        var cb = function (graph, subg) { graph.getRoots(subg).forEach(function (r) { todo.push(r) }) }
+        var roots = []
+        var cb = function (graph, subg) {
+            graph.getRoots(subg).forEach(function (r) { roots.push(r) })
+        }
         this.getSubgraphs().forEach(cb.curry(this))
+        this.breadthfirst(callback, roots, direction)
+    },
+
+    breadthfirst: function (callback, start, direction) {
+        //implements a breadth-first search
+        var todo = start
         var visited = []
         function doVisit (graph) {
             while (todo.length > 0) {
