@@ -13,6 +13,7 @@ function Graph (canvas, width, height) {
         h = canvas.height
     }
     this.layouter = new CircularLayouter(width || w, height || h)
+    this.mutable = true
 }
 Graph.prototype = {
     copy: function () {
@@ -27,9 +28,12 @@ Graph.prototype = {
     },
 
     clear: function () {
-        this.nodes = []
-        this.edges = []
-        this.selectedNode = null
+        if (this.mutable) {
+            this.nodes = []
+            this.edges = []
+            this.selectedNode = null
+        } else
+            throw "cannot clear immutable graph"
     },
 
     layout: function (w, h) {
@@ -88,53 +92,66 @@ Graph.prototype = {
     },
 
     disconnect: function (node1, node2) {
-        if (node1)
-            if (node2) {
-                var edge = this.outEdges(node1).filter(function (e) { return e.destination == node2 })
-                if (edge.length != 1)
-                    return false
-                this.modified = true
-                this.subgraphs = []
-                this.edges = this.edges.filter(neq.curry(edge[0]))
-                return true
-            }
+        if (this.mutable) {
+            if (node1)
+                if (node2) {
+                    var edge = this.outEdges(node1).filter(function (e) { return e.destination == node2 })
+                    if (edge.length != 1)
+                        return false
+                    this.modified = true
+                    this.subgraphs = []
+                    this.edges = this.edges.filter(neq.curry(edge[0]))
+                    return true
+                }
+        } else
+            throw "cannot clear immutable graph"
+
     },
 
     connect: function (node1, node2) {
-        if (node1)
-            if (node2)
-                if (node1 != node2) {
-                    if (this.children(node1).filter(eq.curry(node2)).length == 0) {
-                        this.modified = true
-                        this.subgraphs = []
-                        var edge = new Edge(node1, node2)
-                        this.edges.push(edge)
-                        return edge
-                    } else
-                        console.log("were already connected")
-                }
+        if (this.mutable) {
+            if (node1)
+                if (node2)
+                    if (node1 != node2) {
+                        if (this.children(node1).filter(eq.curry(node2)).length == 0) {
+                            this.modified = true
+                            this.subgraphs = []
+                            var edge = new Edge(node1, node2)
+                            this.edges.push(edge)
+                            return edge
+                        } else
+                            console.log("were already connected")
+                    }
+        } else
+            throw "cannot clear immutable graph"
     },
 
     remove: function (node) {
-        if (node) {
-            //invalidate subgraphs
-            this.modified = true
-            this.subgraphs = []
-            var edg = this.connectedEdges(node)
-            for (var i = 0 ; i < edg.length ; i++)
+        if (this.mutable) {
+            if (node) {
+                //invalidate subgraphs
+                this.modified = true
+                this.subgraphs = []
+                var edg = this.connectedEdges(node)
+                for (var i = 0 ; i < edg.length ; i++)
                 this.edges = this.edges.filter(neq.curry(edg[i]))
-            this.nodes = this.nodes.filter(neq.curry(node))
-        }
+                this.nodes = this.nodes.filter(neq.curry(node))
+            }
+        } else
+            throw "cannot clear immutable graph"
     },
 
     insert: function (node) {
-        if (node) {
-            //invalidate subgraphs!
-            this.modified = true
-            this.subgraphs = []
-            this.nodes.push(node)
-            return node
-        }
+        if (this.mutable) {
+            if (node) {
+                //invalidate subgraphs!
+                this.modified = true
+                this.subgraphs = []
+                this.nodes.push(node)
+                return node
+            }
+        } else
+            throw "cannot clear immutable graph"
     },
 
     contains: function (node) {
