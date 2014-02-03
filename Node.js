@@ -23,7 +23,8 @@ Node.prototype = {
         console.log("better not happen")
     },
 
-    adjustposition: function (graph) { },
+    setValue: function (val, graph) {
+    },
 
     draw: function (ctx, graph) {
         if (this.position) {
@@ -34,8 +35,7 @@ Node.prototype = {
     },
 }
 
-function EllipseNode (val, id) {
-    this.value = val
+function EllipseNode (id) {
     this.identifier = id
 }
 EllipseNode.prototype = {
@@ -43,8 +43,8 @@ EllipseNode.prototype = {
     __proto__ : Node.prototype,
     a: 0,
     b: 9,
-    focalpoint1: null,
-    focalpoint2: null,
+    focalpoints: null,
+    focaldistance: null,
 
     redraw: function (ctx, graph) {
         var pos = this.position.toComplex()
@@ -94,10 +94,11 @@ EllipseNode.prototype = {
 
     },
 
-    adjustposition: function (graph) {
+    setValue: function (val, graph) {
+        this.value = val
         var w = 15
         if (graph.context)
-            w = graph.context.measureText(this.value).width
+            w = graph.context.measureText(val).width
         else
             console.log("have no context, defaulting to width of 15")
         var height = this.b
@@ -107,14 +108,27 @@ EllipseNode.prototype = {
             width = height + 5
         }
         this.a = width
-        var fp = Math.sqrt(width * width - height * height)
-        this.focalpoint1 = this.position.follow(new PolarPoint(0, fp))
-        this.focalpoint2 = this.position.follow(new PolarPoint(Math.PI, fp))
+        this.focaldistance = Math.sqrt(width * width - height * height)
+    },
+
+    getFocalPoints: function () {
+        if (this.focalpoints)
+            return this.focalpoints
+        else {
+            var pos = this.position
+            var dist = this.focaldistance
+            if ((pos != undefined) & (dist != undefined)) {
+                this.focalpoints = [pos.follow(new PolarPoint(0, dist)), pos.follow(new PolarPoint(Math.PI, dist))]
+                return this.focalpoints
+            } else
+                throw 'called focalpoints while pos or distance were null'
+        }
     },
 
     intersects: function (polar) {
         //distance between ''polar'' and focal points is < 2*(width/2)
-        var d = this.focalpoint1.distance(polar) + this.focalpoint2.distance(polar)
+        var fp = this.getFocalPoints()
+        var d = fp[0].distance(polar) + fp[1].distance(polar)
         //if (d < this.width)
         //    console.log("d " + d + " < " + (this.a * 2) + " a * 2")
         return d < (this.a * 2)
@@ -129,8 +143,7 @@ EllipseNode.prototype = {
     }
 }
 
-function CircleNode (val, id) {
-    this.value = val
+function CircleNode (id) {
     this.identifier = id
 }
 CircleNode.prototype = {
@@ -161,10 +174,11 @@ CircleNode.prototype = {
         ctx.fillText(this.value, pos[0] - (size.width / 2), pos[1])
     },
 
-    adjustposition: function (graph) {
+    setValue: function (value, graph) {
+        this.value = value
         var w = 15
         if (graph.context)
-            w = graph.context.measureText(this.value).width
+            w = graph.context.measureText(value).width
         this.radius = w / 3
     },
 

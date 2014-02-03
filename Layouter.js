@@ -45,7 +45,7 @@ RandomLayouter.prototype = {
     __proto__: Layouter.prototype,
 
     resetEdge: function (edge) { },
-    resetNode: function (node) { node.position = null },
+    resetNode: function (node) { node.position = null; node.focalpoints = null },
 
     layoutGraph: function (graph) {
         var cb = function (graph, layouter, x) { layouter.layoutNode(graph, x) }
@@ -82,6 +82,7 @@ CircularLayouter.prototype = {
     resetNode: function (node) {
         node.position = null
         node.edge = null
+        node.focalpoints = null
     },
 
     layoutGraph: function (graph) {
@@ -124,8 +125,6 @@ CircularLayouter.prototype = {
                 childs[i].position = node.position.follow(vec)
             }
         }
-        //adjust node data such as radius and size
-        node.adjustposition(graph)
     },
 
     layoutEdge: function (graph, edge) {
@@ -148,6 +147,7 @@ HierarchicLayouter.prototype = {
     resetNode: function (node) {
         node.position = null
         node.edge = null
+        node.focalpoints = null
     },
 
     layoutGraph: function (graph) {
@@ -195,19 +195,19 @@ HierarchicLayouter.prototype = {
             var dnodesup = graph.parents(node).filter(function (c) { return c.fillStyle == "lightblue" && c.position == undefined })
             var fstp = Math.PI + Math.PI / (2 * (dnodesup.length + 1))
             for (var i = 0; i < dnodesup.length ; i++) {
-                var vec = new PolarPoint(fstp + i * (Math.PI / (2 * (dnodesup.length + 1))), 30)
+                var currtheta = fstp + i * (Math.PI / (2 * (dnodesup.length + 1)))
+                var rho = 20 + (i * 5) + node.overlapping(currtheta)
+                var vec = new PolarPoint(currtheta, rho)
                 dnodesup[i].position = node.position.follow(vec)
-                dnodesup[i].adjustposition(graph)
             }
 
             var dnodesdown = graph.children(node).filter(function (c) { return c.fillStyle == "lightblue" && c.position == undefined })
             for (var i = 0; i < dnodesdown.length ; i++) {
-                var vec = new PolarPoint((i / dnodesdown.length) * (Math.PI / 8), 30)
+                var currtheta = (i / dnodesdown.length) * (Math.PI / 8)
+                var rho = 20 + node.overlapping(currtheta)
+                var vec = new PolarPoint(currtheta, rho)
                 dnodesdown[i].position = node.position.follow(vec)
-                dnodesdown[i].adjustposition(graph)
             }
-            //adjust node data such as radius and size
-            node.adjustposition(graph)
         }
     },
 

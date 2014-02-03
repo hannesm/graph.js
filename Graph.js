@@ -44,7 +44,19 @@ Graph.prototype = {
     },
 
     draw: function () {
-        this.context.clearRect(0, 0, 800, 300)
+        var ymax = []
+        var fmax = function (ymax, x) {
+            if (x.position) {
+                var y = x.position.toComplex()[1]
+                if (y > ymax)
+                    ymax[0] = y
+            }
+        }
+        this.visit(fmax.curry(ymax))
+        console.log("ymax is " + ymax[0])
+        this.canvas.height = ymax[0] + 100
+        console.log("height is " + this.canvas.height)
+        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height)
         var cb = function (ctx, graph, x) { x.draw(ctx, graph) }
         this.visit(cb.curry(this.context, this))
     },
@@ -179,7 +191,8 @@ Graph.prototype = {
     insertNodeByID: function (id, val) {
         if (this.findNodeByID(id))
             throw "node with that id already exists, go away"
-        var n = new EllipseNode(val, id)
+        var n = new EllipseNode(id)
+        n.setValue(val, this)
         this.insert(n)
         return n
     },
@@ -197,6 +210,7 @@ Graph.prototype = {
         if (node)
             return node
         var n = new EllipseNode(val)
+        n.setValue(val)
         this.insert(n)
         return n
     },
