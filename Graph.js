@@ -2,8 +2,6 @@ function Graph (canvas, width, height) {
     this.modified = false
     this.nodes = []
     this.edges = []
-    this.selectedNode = null
-    this.context = null
     var w = 0
     var h = 0
     if (canvas) {
@@ -19,12 +17,37 @@ Graph.prototype = {
     constructor: Graph,
     __proto__: GraphCanvas.prototype,
 
+    check: function () {
+        var cb = function(graph, edge) {
+            var s = graph.findNodeByID(edge.source.identifier)
+            if (! s)
+                throw "can't find source of edge in graph"
+            var d = graph.findNodeByID(edge.destination.identifier)
+            if (! d)
+                throw "can't find destination of edge in graph"
+        }
+        this.edges.forEach(cb.curry(this))
+    },
+
     copy: function () {
         if (this.modified) {
             var g = new Graph(this.canvas)
-            g.nodes = this.nodes.slice(0)
-            g.edges = this.edges.slice(0)
+            this.nodes.forEach(function(x) {
+                g.insert(x)
+            })
+            this.edges.forEach(function(x) {
+                var s = g.findNodeByID(x.source.identifier)
+                if (! s)
+                    throw "trying to connect unknown node"
+                var d = g.findNodeByID(x.destination.identifier)
+                if (! d)
+                    throw "trying to connect unknown node"
+                var edge = g.connect(s, d)
+                edge.strokeStyle = x.strokeStyle
+            })
             g.layouter = this.layouter
+            g.subgraphs = []
+            g.modified = false
             return g
         } else
             return this
@@ -104,18 +127,17 @@ Graph.prototype = {
 
     connect: function (node1, node2) {
         if (this.mutable) {
-            if (node1)
-                if (node2)
-                    if (node1 != node2) {
-                        if (this.children(node1).filter(eq.curry(node2)).length == 0) {
-                            this.modified = true
-                            this.subgraphs = []
-                            var edge = new Edge(node1, node2)
-                            this.edges.push(edge)
-                            return edge
-                        } else
-                            console.log("were already connected")
-                    }
+            if (node1 && node2 && node1 != node2) {
+                if (this.children(node1).filter(eq.curry(node2)).length == 0) {
+                    this.modified = true
+                    this.subgraphs = []
+                    var edge = new Edge(node1, node2)
+                    this.edges.push(edge)
+                    return edge
+                } else
+                    throw "were already connected"
+            } else
+                throw "node1 or node2 undefined or the same"
         } else
             throw "cannot clear immutable graph"
     },

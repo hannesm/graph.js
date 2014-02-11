@@ -117,7 +117,7 @@ EllipseNode.prototype = {
         else {
             var pos = this.position
             var dist = this.focaldistance
-            if ((pos != undefined) & (dist != undefined)) {
+            if ((pos != undefined) && (dist != undefined)) {
                 this.focalpoints = [pos.follow(new PolarPoint(0, dist)), pos.follow(new PolarPoint(Math.PI, dist))]
                 return this.focalpoints
             } else

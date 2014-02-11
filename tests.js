@@ -84,7 +84,11 @@ function testGraphBasic () {
     var n10 = new Node(10)
     graph.insert(n10)
     assert("graph insert works", 1, delay(graph.nodes.length))
-    graph.connect(n10, n10)
+    try {
+        graph.connect(n10, n10)
+    } catch (e) {
+        //an exception is expected here!
+    }
     assert("self-loop prohibited", 0, delay(graph.edges.length))
     var n20 = new Node(20)
     graph.insert(n20)
@@ -109,8 +113,12 @@ function testGraphBasic () {
     assert("n20 parent is n10", n10, delay(graph.parents(n20)[0]))
     assert("n20 inedge source is n10", n10, delay(graph.inEdges(n20)[0].source))
     assert("n20 inedge destination is n20", n20, delay(graph.inEdges(n20)[0].destination))
-    assert("second connection failed", false, delay(graph.connect(n10, n20) != null))
-    assert("one edge in graph", 1, delay(graph.edges.length))
+    try {
+        graph.connect(n10, n20)
+    } catch (e) {
+        //expect to be here!
+    }
+    assert("second connection failed, still one edge in graph", 1, delay(graph.edges.length))
     assert("n10 has one neighbour", 1, delay(graph.neighbours(n10).length))
     assert("n10 has one child", 1, delay(graph.children(n10).length))
     assert("n10 has one outedge", 1, delay(graph.outEdges(n10).length))
