@@ -3,6 +3,7 @@ eval(require('fs').readFileSync("PolarPoint.js", "utf8"))
 eval(require('fs').readFileSync("Edge.js", "utf8"))
 eval(require('fs').readFileSync("Node.js", "utf8"))
 eval(require('fs').readFileSync("Layouter.js", "utf8"))
+eval(require('fs').readFileSync("GraphCanvas.js", "utf8"))
 eval(require('fs').readFileSync("Graph.js", "utf8"))
 
 var count = 0
